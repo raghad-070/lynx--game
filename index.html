@@ -40,23 +40,6 @@ body {
   to{transform:translateY(-1000px)}
 }
 
-/* 🎉 القصاصات */
-.confetti{
-  position:fixed;
-  width:8px;
-  height:8px;
-  top:-10px;
-  animation:fall linear forwards;
-  z-index:999;
-}
-
-@keyframes fall{
-  to{
-    transform:translateY(100vh) rotate(720deg);
-    opacity:1;
-  }
-}
-
 /* جهاز الآركيد */
 .arcade-container{
   position:relative;
@@ -65,35 +48,14 @@ body {
   height:100vh;
 }
 
-/* ⭐ الحقوق */
-.footer{
-  position:absolute;
-  top:2%;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:12px;
-  color:#ffffff;
-}
-
-/* Glow */
-.arcade-container::after{
-  content:"";
-  position:absolute;
-  top:28%;
-  left:50%;
-  transform:translateX(-50%);
-  width:55%;
-  height:45%;
-  background:radial-gradient(circle, rgba(112,92,162,0.25), transparent 70%);
-  filter:blur(20px);
-}
-
 /* صورة الآركيد */
 .arcade-img{
   position:absolute;
   width:100%;
   height:100%;
   object-fit:contain;
+  pointer-events:none;
+  z-index:1;
 }
 
 /* المحتوى */
@@ -107,50 +69,23 @@ body {
   display:flex;
   flex-direction:column;
   gap:8px;
+  z-index:2;
 }
 
-.question{
-  font-size:16px;
-  color:#111;
-}
-
-.options{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:6px;
-}
-
-.option{
-  background:#d1d5db;
-  padding:6px;
-  border-radius:8px;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.option:hover{
-  transform:scale(1.05);
-}
-
-/* شاشة النهاية */
-.end-screen{
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.end-screen img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  border-radius:16px;
-}
-
-.fail{
-  color:black;
+/* ⭐ وضع الصيانة داخل الجهاز */
+.maintenance-box{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  font-weight:bold;
+  color:#000;
   font-size:18px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* اخفاء الاسئلة */
+.hidden{
+  display:none;
 }
 
 /* موبايل */
@@ -158,13 +93,6 @@ body {
 .content{
   width:58%;
   top:29%;
-}
-.question{
-  font-size:4vw;
-}
-.option{
-  font-size:3.5vw;
-  padding:2.5vw;
 }
 }
 
@@ -177,125 +105,29 @@ body {
 
 <div class="arcade-container">
 
-  <div class="footer">
-    © 2026 raghad - All Rights Reserved
-  </div>
-
-  <!-- 🎮 صورة الآركيد -->
   <img src="https://raw.githubusercontent.com/raghad-070/lynx--game/main/arcade.png.jpg" class="arcade-img">
 
   <div class="content" id="content">
-    <div class="question" id="question"></div>
-    <div class="options" id="options"></div>
+
+    <!-- 🔧 وضع الصيانة -->
+    <div class="maintenance-box">
+      ⚠️ الجهاز قيد الصيانة<br><br>
+      سنعود قريباً
+    </div>
+
+    <!-- 🎮 الأسئلة (مخفية الآن) -->
+    <div id="game" class="hidden">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+
   </div>
 
 </div>
 
 <script>
 
-const questions = [
-{
-q:"مين اللي شال السلحفاة في حلقة جومانجي؟",
-options:["ابو شايف","هادي","حسين","ياسر"],
-answer:0
-},
-{
-q:"صاحب مقولة سيدو سيدو",
-options:["ياسر","خالد زين","ابو شايف","ابراهيم"],
-answer:1
-},
-{
-q:"الامبوستر في حلقة امونق اس",
-options:["ياسر","جواد","هادي","خالد"],
-answer:2
-},
-{
-q:"وجبة شكشوشة بالجبن وعصير برتقال كانت لـ",
-options:["جواد","ابراهيم","حسين","خالد"],
-answer:1
-},
-{
-q:"الفائز بالمركز الاول في حلقة افضل اب كان",
-options:["ابو شايف","ابراهيم","هادي","ياسر"],
-answer:3
-},
-{
-q:"الدون في حلقة افضل فريق كان",
-options:["جواد","ياسر","حسين","هادي"],
-answer:1
-}
-];
-
-let current = 0;
-let score = 0;
-
-/* 🎉 قصاصات */
-function launchConfetti(){
-for(let i=0;i<80;i++){
-const c=document.createElement("div");
-c.className="confetti";
-c.style.left=Math.random()*100+"%";
-c.style.background=`hsl(${Math.random()*360},100%,60%)`;
-c.style.animationDuration=(2+Math.random()*2)+"s";
-document.body.appendChild(c);
-setTimeout(()=>c.remove(),4000);
-}
-}
-
-function loadQuestion(){
-const q = questions[current];
-document.getElementById("question").innerText = q.q;
-
-const optionsDiv = document.getElementById("options");
-optionsDiv.innerHTML = "";
-
-q.options.forEach((opt,index)=>{
-const div=document.createElement("div");
-div.className="option";
-div.innerText=opt;
-
-div.onclick=()=>{
-if(index===q.answer){
-div.style.background="green";
-score++;
-}else{
-div.style.background="red";
-}
-
-setTimeout(()=>{
-current++;
-if(current<questions.length){
-loadQuestion();
-}else{
-showResult();
-}
-},700);
-};
-
-optionsDiv.appendChild(div);
-});
-}
-
-function showResult(){
-document.getElementById("content").innerHTML="";
-
-if(score===questions.length){
-launchConfetti();
-document.getElementById("content").innerHTML=`
-<div class="end-screen">
-<img src="https://raw.githubusercontent.com/raghad-070/lynx--game/main/card1.png.jpg">
-</div>
-`;
-}else{
-document.getElementById("content").innerHTML=`
-<div class="end-screen fail">
-ذاكروا زين 😅
-</div>
-`;
-}
-}
-
-loadQuestion();
+// 🚫 لا يتم تشغيل اللعبة (وضع صيانة)
 
 </script>
 
